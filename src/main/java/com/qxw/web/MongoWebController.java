@@ -1,18 +1,18 @@
 package com.qxw.web;
-
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -45,59 +45,65 @@ public class MongoWebController {
 			List<String> listNames=new ArrayList<String>();
 			 while (i.hasNext()) {
 					String tableName=i.next();
-					if(!Arrays.asList(tableArr).contains(tableName)){
+//					if(!Arrays.asList(tableArr).contains(tableName)){
 						 listNames.add(tableName);
-					}
+//					}
 		           
 		    }		
 	        return R.ok().put("listNames", listNames);
 	    }
 	  
-	
-	  	/**
-	  	 * 查询指定mongo集合的表数据
-	  	 * @param pageNum
-	  	 * @param pageSize
-	  	 * @param request
-	  	 * @return
-	  	 */
-		@RequestMapping("/findTableNameList")
-		public ModelAndView findTableNameList(@RequestParam(value="p",defaultValue="1") int pageNum,
-				@RequestParam(value="s",defaultValue="10") int pageSize, HttpServletRequest request){
-			ModelAndView view=new ModelAndView();
-			if(pageNum==0) pageNum=1;if(pageSize==0) pageSize=10;
-			String tableName=request.getParameter("tableName");
-			BasicDBObject query=  new BasicDBObject();
-			MongoCollection<Document> table=MongoSdkBase.getColl(tableName);
-			JSONObject data = MongoSdkBase.getPage(table, query, Sorts.descending("_id"), pageNum, pageSize);
-			//获取集合的所有key
-			List<JSONObject> oldList=(List<JSONObject>) data.get("data");
-			JSONObject obj=oldList.get(0);
-			
+
 		
-			List<String> keyOrType=new ArrayList<>();
-			obj.keySet().forEach(o->{
-				if(obj.get(o) instanceof Integer){
-					keyOrType.add(o+",Integer");
-				}else if(obj.get(o) instanceof Long){
-					keyOrType.add(o+",Long");
-				}else if(obj.get(o) instanceof Double){
-					keyOrType.add(o+",Double");
-				}else if(obj.get(o) instanceof JSONObject){
-					keyOrType.add(o+",JSONObject");
-				}else if(obj.get(o) instanceof JSONArray){
-					keyOrType.add(o+",JSONArray");
-				}else{
-					keyOrType.add(o+",String");
+		
+		  @ResponseBody
+		  @RequestMapping("/getCollection")
+		  public R getCollection(@RequestParam(value="p",defaultValue="1") int pageNum,
+					@RequestParam(value="s",defaultValue="10") int pageSize, HttpServletRequest request){
+			  if(pageNum==0) pageNum=1;if(pageSize==0) pageSize=10;
+				String tableName=request.getParameter("tableName");
+				String jsonStr=request.getParameter("jsonStr");
+				BasicDBObject query=  new BasicDBObject();
+				if(!StringUtils.isEmpty(jsonStr)){
+					JSONObject obj=JSONObject.parseObject(jsonStr);
+					obj.keySet().forEach(o->{
+						if(obj.get(o) instanceof Integer){
+							query.put(o, obj.get(o));
+						}else if(obj.get(o) instanceof JSONObject){
+							
+						}else if(obj.get(o) instanceof JSONArray){
+							
+						}else{
+							//其余默认为字符串查询
+							if(obj.get(o) instanceof String){
+								String parm=obj.getString(o);
+								parm.contains(",");
+							}
+						}
+					});		
+					
 				}
-			});		
-			view.setViewName("/sys/mongo/collection");
-			view.addObject("data", data);
-			view.addObject("keys", obj.keySet());
-			view.addObject("keyOrType",keyOrType);
-			return view;		
-		}
-		
-		
-		
+				MongoCollection<Document> table=MongoSdkBase.getColl(tableName);
+				JSONObject data = MongoSdkBase.getPage(table, query, Sorts.descending("_id"), pageNum, pageSize);
+				
+				//获取集合的所有key
+				Document obj=MongoSdkBase.getColl(tableName).find().first();	
+				Map<String, Object> m=new HashMap<String, Object>();
+				m.put("data", data);
+				m.put("keys", obj.keySet());
+		        return R.ok(m);
+		   }
+		  
+		  
+		  @ResponseBody
+		  @RequestMapping("/getCollectionKeys")
+		  public R getCollectionKeys(HttpServletRequest request){
+				String tableName=request.getParameter("tableName");				
+				Document doc=MongoSdkBase.getColl(tableName).find().first();
+				Map<String, Object> map=new HashMap<>();
+				map.put("doc", doc);			
+		        return R.ok(map);
+		   }
+		  
+		  
 }
