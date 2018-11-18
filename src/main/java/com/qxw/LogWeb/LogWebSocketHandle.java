@@ -10,7 +10,7 @@ import javax.websocket.server.ServerEndpoint;
 
 /**
  * WebSocket + tail命令实现Web实时日志
- *
+ * <p>
  * JSR 356是Java实现WebSocket的一套规范，所以需要一个支持JSR 356的服务器，例如Tomcat、Jetty的最新版本。
  *
  * @author qinxuewu
@@ -50,12 +50,12 @@ public class LogWebSocketHandle {
     @OnClose
     public void onClose() {
         try {
-            if(inputStream != null)
+            if (inputStream != null)
                 inputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(process != null)
+        if (process != null)
             process.destroy();
     }
 

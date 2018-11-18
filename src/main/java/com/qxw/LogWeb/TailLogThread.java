@@ -1,10 +1,12 @@
 package com.qxw.LogWeb;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import javax.websocket.Session;
+
 /**
  * 针对每个WebSocket连接都会创建一个新的LogWebSocketHandle实例
  * 以可以不用像Servlet一样考虑线程安全问题。由于tail -f命令的输入流会阻塞当前线程，
@@ -16,7 +18,7 @@ import javax.websocket.Session;
  */
 
 
-public class TailLogThread extends Thread{
+public class TailLogThread extends Thread {
 
     private BufferedReader reader;
     private Session session;
@@ -32,7 +34,7 @@ public class TailLogThread extends Thread{
     public void run() {
         String line;
         try {
-            while((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 // 将实时日志通过WebSocket发送给客户端，给每一行添加一个HTML换行
                 session.getBasicRemote().sendText(line + "<br>");
             }
