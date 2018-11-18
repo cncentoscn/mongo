@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>mongodb web版查询功能</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" type="text/css" href="jsoneditor/dist/jsoneditor.css">
+</head>
+<body>
+
+<table class="layui-table" lay-size="sm">
+    <colgroup>
+        <col width="150">
+        <col width="200">
+        <col>
+    </colgroup>
+    <thead>
+    <tr>
+        <th>数据源</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="list">
+
+    </tbody>
+</table>
+<div id="test1"></div>
+<script src="layui/layui.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/config.js"></script>
+<script>
+    $(function () {
+        $("#list").html("");
+        $.ajax({
+            url: baseURl+"/mongo/index",
+            dataType: "json",
+            type: "get",
+            success: function (data) {
+                if (data.code == 0) {
+                    $.each(data.listNames, function (index, obj) {
+                    	var url=baseURl+"/db.html?dbName="+obj;
+                        $("#list").append("<tr><td>" + obj + "</td><td><a href='"+url+"'>查询</a></td></tr>")
+                    })
+                }
+            }
+        })
+
+
+    })
+</script>
+</body>
+</html>
