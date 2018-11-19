@@ -12,9 +12,7 @@ layui.extend({
 	admin: '{/}../../static/js/admin'
 });
 layui.use(['laydate', 'jquery', 'admin'], function() {
-	var laydate = layui.laydate,
-		$ = layui.jquery,
-		admin = layui.admin;
+	var laydate = layui.laydate,$ = layui.jquery,admin = layui.admin;
 	//执行一个laydate实例
 	laydate.render({
 		elem: '#start' //指定元素

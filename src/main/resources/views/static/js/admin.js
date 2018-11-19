@@ -133,7 +133,9 @@ layui.define(['jquery', 'form', 'layer', 'element'], function(exports) {
 	 * @todo 左侧菜单事件
 	 * 如果有子级就展开，没有就打开frame
 	 */
-	$('.left-nav #nav li').click(function(event) {
+	
+	// 此处应该使用动态绑定事件       $('.left-nav #nav li').click(function(event) {
+	$(document).on('click','.left-nav #nav li',function(event) {
 		if($(this).children('.sub-menu').length) {
 			if($(this).hasClass('open')) {
 				$(this).removeClass('open');
@@ -150,6 +152,9 @@ layui.define(['jquery', 'form', 'layer', 'element'], function(exports) {
 			}
 		} else {
 			var url = $(this).children('a').attr('_href');
+			var dbName = $(this).children('a').attr('data-name');
+
+
 			var title = $(this).find('cite').html();
 			var index = $('.left-nav #nav li').index($(this));
 
@@ -161,7 +166,7 @@ layui.define(['jquery', 'form', 'layer', 'element'], function(exports) {
 				}
 			};
 
-			tab.tabAdd(title, url, index + 1);
+			tab.tabAdd(title, url, index + 1,dbName);
 			tab.tabChange(index + 1);
 		}
 		event.stopPropagation(); //不触发任何前辈元素上的事件处理函数
@@ -171,7 +176,7 @@ layui.define(['jquery', 'form', 'layer', 'element'], function(exports) {
 	 * @todo tab触发事件：增加、删除、切换
 	 */
 	var tab = {
-		tabAdd: function(title, url, id) {
+		tabAdd: function(title, url, id,dbName) {
 			//判断当前id的元素是否存在于tab中
 			var li = $("#WeTabTip li[lay-id=" + id + "]").length;
 			//console.log(li);
@@ -184,7 +189,7 @@ layui.define(['jquery', 'form', 'layer', 'element'], function(exports) {
 				//console.log("<0");
 				element.tabAdd('wenav_tab', {
 					title: title,
-					content: '<iframe tab-id="' + id + '" frameborder="0" src="' + url + '" scrolling="yes" class="weIframe"></iframe>',
+					content: '<iframe tab-id="' + id + '" frameborder="0" src="' + url + '?&dbName='+dbName+'" scrolling="yes" class="weIframe"></iframe>',
 					id: id
 				});
 				//当前窗口内容

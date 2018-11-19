@@ -12,55 +12,19 @@
 		<link rel="stylesheet" href="./static/css/font.css">
 		<link rel="stylesheet" href="./static/css/weadmin.css">
 		<script type="text/javascript" src="./lib/layui/layui.js" charset="utf-8"></script>
+		<script type="text/javascript" src="js/config.js" charset="utf-8"></script>
+
 	</head>
 
 	<body>
 		<!-- 顶部开始 -->
 		<div class="container">
 			<div class="logo">
-				<a href="./index.html">WeAdmin v1.0</a>
+				<a href="./index.html">Mongodb WeAdmin v1.0</a>
 			</div>
 			<div class="left_open">
 				<i title="展开左侧栏" class="iconfont">&#xe699;</i>
 			</div>
-			<ul class="layui-nav left fast-add" lay-filter="">
-				<li class="layui-nav-item">
-					<a href="javascript:;">+新增</a>
-					<dl class="layui-nav-child">
-						<!-- 二级菜单 -->
-						<dd>
-							<a onclick="WeAdminShow('资讯','https://www.youfa365.com/')"><i class="iconfont">&#xe6a2;</i>资讯</a>
-						</dd>
-						<dd>
-							<a onclick="WeAdminShow('图片','http://www.baidu.com')"><i class="iconfont">&#xe6a8;</i>图片</a>
-						</dd>
-						<dd>
-							<a onclick="WeAdminShow('用户','https://www.youfa365.com/')"><i class="iconfont">&#xe6b8;</i>用户</a>
-						</dd>
-					</dl>
-				</li>
-			</ul>
-			<ul class="layui-nav right" lay-filter="">
-				<li class="layui-nav-item">
-					<a href="javascript:;">Admin</a>
-					<dl class="layui-nav-child">
-						<!-- 二级菜单 -->
-						<dd>
-							<a onclick="WeAdminShow('个人信息','http://www.baidu.com')">个人信息</a>
-						</dd>
-						<dd>
-							<a onclick="WeAdminShow('切换帐号','./login.html')">切换帐号</a>
-						</dd>
-						<dd>
-							<a class="loginout" href="login.html">退出</a>
-						</dd>
-					</dl>
-				</li>
-				<li class="layui-nav-item to-index">
-					<a href="/">前台首页</a>
-				</li>
-			</ul>
-
 		</div>
 		<!-- 顶部结束 -->
 		<!-- 中部开始 -->
@@ -71,51 +35,12 @@
 					<li>
 						<a href="javascript:;">
 							<i class="iconfont">&#xe6b8;</i>
-							<cite>会员管理</cite>
+							<cite>Mongo数据源</cite>
 							<i class="iconfont nav_right">&#xe697;</i>
 						</a>
-						<ul class="sub-menu">
-							<li>
-								<a _href="./pages/member/list.html">
-									<i class="iconfont">&#xe6a7;</i>
-									<cite>会员列表</cite>
-
-								</a>
-							</li>
-							<li>
-								<a _href="./pages/member/del.html">
-									<i class="iconfont">&#xe6a7;</i>
-									<cite>会员删除</cite>
-
-								</a>
-							</li>
-							<li>
-								<a href="javascript:;">
-									<i class="iconfont">&#xe70b;</i>
-									<cite>会员管理</cite>
-									<i class="iconfont nav_right">&#xe697;</i>
-								</a>
-								<ul class="sub-menu">
-									<li>
-										<a _href="./pages/member/addInput.html">
-											<i class="iconfont">&#xe6a7;</i>
-											<cite>输入框操作</cite>
-										</a>
-									</li>
-									<li>
-										<a _href="./pages/404.html">
-											<i class="iconfont">&#xe6a7;</i>
-											<cite>三级菜单演示</cite>
-										</a>
-									</li>
-									<li>
-										<a _href="./pages/404.html">
-											<i class="iconfont">&#xe6a7;</i>
-											<cite>导航菜单演示</cite>
-										</a>
-									</li>
-								</ul>
-							</li>
+						<ul class="sub-menu" style="display: block;" id="app">
+								<!-- 数据源列表展示 -->	
+								
 						</ul>
 					</li>
 				</ul>
@@ -131,7 +56,7 @@
 				</ul>
 				<div class="layui-tab-content">
 					<div class="layui-tab-item layui-show">
-						<iframe src='./pages/welcome.html' frameborder="0" scrolling="yes" class="weIframe"></iframe>
+						<iframe src='./pages/welcome.html?dbName=xx' frameborder="0" scrolling="yes" class="weIframe" name="container"></iframe>
 					</div>
 				</div>
 			</div>
@@ -141,7 +66,7 @@
 		<!-- 中部结束 -->
 		<!-- 底部开始 -->
 		<div class="footer">
-			<div class="copyright">Copyright ©2018 WeAdmin v1.0 All Rights Reserved</div>
+			<div class="copyright"></div>
 		</div>
 		<!-- 底部结束 -->
 		<script type="text/javascript">
@@ -155,12 +80,13 @@
 //			});
 			layui.config({
 			  base: './static/js/'
-			  ,version: '101100'
+			  ,version: '1.0'
 			}).use('admin');
 			layui.use(['jquery','admin'], function(){
 				var $ = layui.jquery;
 				$(function(){
-					var login = JSON.parse(localStorage.getItem("login"));
+					
+					/**var login = JSON.parse(localStorage.getItem("login"));
 					if(login){
 						if(login=0){
 							window.location.href='./login.html';
@@ -171,10 +97,28 @@
 					}else{
 						window.location.href='./login.html';
 						return false;
-					}
+					}**/
+	
+				        $.ajax({
+				            url: baseURl+"/mongo/index",
+				            dataType: "json",
+				            type: "get",
+				            success: function (data) {
+				                if (data.code == 0) {
+				                    $.each(data.listNames, function (index, obj) {
+				                    	var html='<li ><a _href="./pages/mongodb/dblist.html" data-name="'+obj+'" >';
+				                    		html+='<i class="layui-icon layui-icon-layer" style="font-size: 15px; color: #e45b3a;"></i>';	
+				                    		html+='<cite>'+obj+'</cite>';	
+				                    		html+='</a></li>';
+				                           $(".sub-menu").append(html)
+				                    })
+				                }
+				            }
+				        })
+				        
 				});
-			});
-
+			});	
+			
 		</script>
 	</body>
 	<!--Tab菜单右键弹出菜单-->

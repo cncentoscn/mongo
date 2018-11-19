@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeFilter;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ValueFilter;
+import com.mongodb.DBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -35,7 +36,7 @@ public class MongoSdkBase {
         MongoDatabase db = MongoFactory.getMongoDb("testdb");
         return db.getCollection(tableName);
     }
-    public static MongoCollection<Document> getColl(String tableName,String dbName) {
+    public static MongoCollection<Document> getColl(String dbName,String tableName) {
         MongoDatabase db = MongoFactory.getMongoDb(dbName);
         return db.getCollection(tableName);
     }
@@ -173,24 +174,18 @@ public class MongoSdkBase {
 
     /**
      * 分页查询
-     *
      * @param table    表连接
      * @param filter   条件  com.mongodb.client.model.Filter
      * @param sort     排序    com.mongodb.client.model.Sorts
-     *                 //ascending(orderBy); //descending("");
      * @param pageNum
      * @param pageSize
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static JSONObject getPage(MongoCollection table, Bson filter, Bson sort, int pageNum, int pageSize) {
-
-        if (pageNum == 0) pageNum = 1;
-        if (pageSize == 0) pageSize = 10;
-        int totalCount = (int) (filter == null ? table.count() : table.count(filter));//table.count(filter);
+        int totalCount = (int) (filter == null ? table.countDocuments(): table.countDocuments(filter));//table.count(filter);
         int totalPage = (int) (totalCount / pageSize + ((totalCount % pageSize == 0) ? 0 : 1));
         if (pageNum > totalPage) pageNum = totalPage;
-
         JSONObject msg = new JSONObject();
         msg.put("pageNum", pageNum);
         msg.put("pageSize", pageSize);
@@ -199,7 +194,7 @@ public class MongoSdkBase {
         List<JSONObject> list = new ArrayList<JSONObject>();
         if (totalCount > 0) {
             int startRow = pageNum > 0 ? (pageNum - 1) * pageSize : 0;
-            FindIterable<Document> result = null;//filter==null?(table.find().skip(startRow).limit(totalPage)):(table.find(filter).skip(startRow).limit(totalPage));// table.find(filter);
+            FindIterable<Document> result = null;
             if (filter == null) {
                 result = table.find().sort(sort).skip(startRow).limit(pageSize);
             } else {
@@ -222,42 +217,49 @@ public class MongoSdkBase {
      * @param table    表连接
      * @param filter   条件  com.mongodb.client.model.Filter
      * @param sort     排序    com.mongodb.client.model.Sorts
-     *                 //ascending(orderBy); //descending("");
      * @param pageNum
      * @param pageSize
      * @return
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static JSONObject getGroupPage(MongoCollection table, Bson filter, Bson group, Bson sorts, int pageNum, int pageSize) {
-
-        if (pageNum == 0) pageNum = 1;
-        if (pageSize == 0) pageSize = 10;
-
         List<JSONObject> list = new ArrayList<>();
         int startRow = pageNum > 0 ? (pageNum - 1) * pageSize : 0;
-
         MongoCursor<Document> iterator = table.aggregate(Arrays.asList(match(filter), group, sort(sorts), skip(startRow), limit(pageSize))).iterator();
-
         while (iterator.hasNext()) {
             Document doc = iterator.next();
             list.add(JSON.parseObject(diyObjectIdToJson(doc)));
         }
-
         int totalCount = list != null && list.size() > 0 ? list.size() : 0;
         int totalPage = (int) (totalCount / pageSize + ((totalCount % pageSize == 0) ? 0 : 1));
-
         JSONObject msg = new JSONObject();
         msg.put("pageNum", pageNum);
         msg.put("pageSize", pageSize);
         msg.put("totalCount", totalCount);
         msg.put("totalPage", totalPage);
         msg.put("data", list);
-
         return msg;
     }
 
 
-    /******************************** ***********************************/
+	/**
+	 * 聚哈函数 统计  ,查询
+	 * @param table
+	 * @param filter
+	 * @param group
+	 * @param sort
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static List<JSONObject> getAggregateList(MongoCollection table,Bson filter,DBObject group,Bson sort){
+		List<JSONObject> list=new ArrayList<JSONObject>();
+		MongoCursor<Document> iterator=table.aggregate(Arrays.asList(match(filter),group,sort(sort))).iterator();  
+		 while (iterator.hasNext()) {
+	            Document doc = iterator.next();
+	            list.add(JSON.parseObject(diyObjectIdToJson(doc)));
+	        }
+		return list;
+	}
 
 
     /******************************以下为工具*************************************/
@@ -282,7 +284,7 @@ public class MongoSdkBase {
         if (type == null || "".equals(type)) return 0;
         MongoDatabase db = MongoFactory.getMongoDb();
         MongoCollection table = db.getCollection("ids");
-        Bson filter = and(eq("type", type));//
+        Bson filter = and(eq("type", type));
         Document oo = (Document) table.findOneAndUpdate(filter,
                 combine(inc("id", 1), set("date", new Date()), setOnInsert("_id", new ObjectId().toString())),
                 new FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER));
@@ -303,7 +305,7 @@ public class MongoSdkBase {
      */
     @SuppressWarnings("static-access")
 	public static Document _set(String json) {
-        Document b = new Document().parse(json);//	b.put(fieldName, value);
+        Document b = new Document().parse(json);
         b.remove("_id");
         return new Document("$set", b);
     }
