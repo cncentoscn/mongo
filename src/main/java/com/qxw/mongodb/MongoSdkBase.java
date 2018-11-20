@@ -183,7 +183,7 @@ public class MongoSdkBase {
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static JSONObject getPage(MongoCollection table, Bson filter, Bson sort, int pageNum, int pageSize) {
-        int totalCount = (int) (filter == null ? table.countDocuments(): table.countDocuments(filter));//table.count(filter);
+        int totalCount = (int) (filter == null ? table.count(): table.count(filter));
         int totalPage = (int) (totalCount / pageSize + ((totalCount % pageSize == 0) ? 0 : 1));
         if (pageNum > totalPage) pageNum = totalPage;
         JSONObject msg = new JSONObject();

@@ -4,9 +4,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
 import org.bson.Document;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,14 +22,26 @@ import com.qxw.mongodb.MongoFactory;
 import com.qxw.mongodb.MongoSdkBase;
 import com.qxw.utils.R;
 
-
+/**
+ * mongodb web
+ * @author qxw
+ * @data 2018年11月20日下午1:03:32
+ */
 @Controller
 @RequestMapping("mongo")
 public class MongoWebController {
+	/**
+	 * 条件操作符
+	 */
+//	private final static String GTE="$gte";
+//	private final static String LTE="$lte";
+//	private final static String IN="$in";
+//	private final static String REGEXS="$regex";
+	
     /**
      * 需要过滤的表
      */
-    private final static String[] tableArr = {"system.indexes"};
+    private final static String[] TAVLEARR = {"system.indexes"};
 
 
     	
@@ -39,7 +52,7 @@ public class MongoWebController {
      */
     @ResponseBody
     @RequestMapping("/index")
-    public R index(String db) {
+    public R index() {
         List<String> listNames =MongoFactory.getDbList();
         return R.ok().put("listNames", listNames);
     }
@@ -52,6 +65,9 @@ public class MongoWebController {
     @ResponseBody
     @RequestMapping("/db")
     public R db(String dbName) {
+    	if(StringUtils.isEmpty(dbName)){
+    		return R.error("dbName参数不能为空");
+    	}
         MongoDatabase mogo = MongoFactory.getMongoDb(dbName);
         //获取所有集合的名称
         MongoIterable<String> collectionNames = mogo.listCollectionNames();
@@ -59,7 +75,7 @@ public class MongoWebController {
         List<String> listNames = new ArrayList<String>();
         while (i.hasNext()) {
             String tableName = i.next();
-			if(!Arrays.asList(tableArr).contains(tableName)){
+			if(!Arrays.asList(TAVLEARR).contains(tableName)){
 	            listNames.add(tableName);
 			}
 
@@ -71,28 +87,108 @@ public class MongoWebController {
      * 集合下的数据列表
      * @param pageNum
      * @param pageSize
-     * @param request
+     * @param parame 查询条件 json字符串
      * @return
      */
     @ResponseBody
     @RequestMapping("/getCollection")
-    public R getCollection(@RequestParam(value = "p", defaultValue = "1") int pageNum,@RequestParam(value = "s", defaultValue = "10") int pageSize,String dbName,String tableName) {
+    public R getCollection(@RequestParam(value = "p", defaultValue = "1") int pageNum,@RequestParam(value = "s", defaultValue = "10") int pageSize,
+    		String dbName,String tableName,String parame) {
+    	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)){
+    		return R.error("dbName,tableName参数不能为空");
+    	}
         BasicDBObject query = new BasicDBObject();
+        if(!StringUtils.isEmpty(parame)){
+        	JSONObject obj=JSONObject.parseObject(parame);
+        	 Set<String> kyes=obj.keySet();
+        	 kyes.forEach(key->{
+        		    query.put(key,obj.get(key));
+        	  });
+        }
         MongoCollection<Document> table = MongoSdkBase.getColl(dbName,tableName);
         JSONObject data = MongoSdkBase.getPage(table, query, Sorts.descending("_id"), pageNum, pageSize);
-
         //获取集合的所有key
         Document obj = MongoSdkBase.getColl(dbName,tableName).find().first();
-        Map<String, Object> m = new HashMap<String, Object>();
+        Map<String, Object> m = new HashMap<String, Object>(16);
         m.put("data", data);
         if(obj!=null) {
         	m.put("keys", obj.keySet());
         }
         return R.ok(m);
+    }     
+   
+    /**
+     * 删除集合
+     * @param collectionName
+     * @param tableName
+     * @param id  主键
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/deleteCollection")
+    public R deleteCollection(String dbName,String tableName, String id){
+    	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)||StringUtils.isEmpty(id)){
+    		return R.error("dbName,tableName,id,参数不能为空");
+    	}
+    	int count=MongoSdkBase.deleteOne(MongoSdkBase.getColl(dbName,tableName),id);
+        return count>0?R.ok():R.error("删除失败");
     }
 
-
-
-
-
+    /**
+     * 更新集合
+     * @param collectionName
+     * @param tableName
+     * @param data  json字符串
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/updateCollection")
+    public R updateCollection(String dbName,String tableName, String parame){
+    	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)||StringUtils.isEmpty(parame)){
+    		return R.error("dbName,tableName,parame,参数不能为空");
+    	}
+    	JSONObject info=JSONObject.parseObject(parame);
+    	String id=info.getString("_id");
+    	boolean falg=MongoSdkBase.updateOne(MongoSdkBase.getColl(dbName,tableName), id, info);
+        return falg==true?R.ok():R.error("更新失败");
+    }
+    
+    /**
+     * 添加集合
+     * @param collectionName
+     * @param tableName
+     * @param data  json字符串
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/saveCollection")
+    public R saveCollection(String dbName,String tableName, String parame){
+    	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)||StringUtils.isEmpty(parame)){
+    		return R.error("dbName,tableName,parame,参数不能为空");
+    	}
+    	JSONObject info=JSONObject.parseObject(parame);
+    	String id=MongoSdkBase.insertOne(MongoSdkBase.getColl(dbName,tableName), info);
+        return StringUtils.isEmpty(id)?R.error("添加失败"):R.ok();
+    }
+    
+ 
+    /**
+     * 根据ID查询集合
+     * @param collectionName
+     * @param tableName
+     * @param data  json字符串
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/findOne")
+    public R findOne(String dbName,String tableName, String id){
+    	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)||StringUtils.isEmpty(id)){
+    		return R.error("dbName,tableName,id,参数不能为空");
+    	}
+    	String result=MongoSdkBase.seleteOne(MongoSdkBase.getColl(dbName,tableName), id);
+        return R.ok().put("data", JSONObject.parseObject(result));
+    }
+    
+  
+    
 }

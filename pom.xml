@@ -41,8 +41,7 @@
         <!-- mongodb -->
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-             <version>3.9.0</version>
+            <artifactId>mongo-java-driver</artifactId>       
         </dependency>
         <!-- json包 -->
         <dependency>

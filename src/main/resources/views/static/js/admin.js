@@ -9,6 +9,72 @@
  * +----------------------------------------------------------------------
  */
 
+var baseURl="http://localhost:8080";
+
+//将url变成json数据
+function urlToJSON() {
+    //url=？xx=yy&ff=jj格式值
+    //将url变成json数据
+    var k_v = decodeURI(window.location.search).substring(1).split("&");
+    var data = {};
+    for (var i = 0; i < k_v.length; i++) {
+        var arr = k_v[i].split("=");
+        data[arr[0]] = arr[1];
+    }
+    return data;
+};
+//json数据高亮显示
+function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+        json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
+//格式
+function formatJson(msg) {
+    var rep = "~";
+    var jsonStr = JSON.stringify(msg, null, rep)
+    var str = "";
+    for (var i = 0; i < jsonStr.length; i++) {
+        var text2 = jsonStr.charAt(i)
+        if (i > 1) {
+            var text = jsonStr.charAt(i - 1)
+            if (rep != text && rep == text2) {
+                str += "<br/>"
+            }
+        }
+        str += text2;
+    }
+    jsonStr = "";
+    for (var i = 0; i < str.length; i++) {
+        var text = str.charAt(i);
+        if (rep == text)
+            jsonStr += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+        else {
+            jsonStr += text;
+        }
+        if (i == str.length - 2)
+            jsonStr += "<br/>"
+    }
+    return jsonStr;
+}
+
+
 layui.define(['jquery', 'form', 'layer', 'element'], function(exports) {
 	var $ = layui.jquery,
 		form = layui.form,

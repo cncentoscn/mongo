@@ -21,7 +21,7 @@ public class CommonApi {
             Properties properties = new Properties();
             properties.load(is);
             mongo_host_port = properties.getProperty("mongo.host.port");
-            mongo_user_pass_db = properties.getProperty("#mongo.user.pass.db");
+            mongo_user_pass_db = properties.getProperty("mongo.user.pass.db");
             is.close();
         } catch (Exception ex) {
             logger.debug("加载配置文件出错：" + ex.getMessage());

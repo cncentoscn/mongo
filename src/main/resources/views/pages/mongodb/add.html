@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<meta charset="UTF-8">
 		<title>Mongodb WeAdmin v1.0</title>
@@ -19,8 +20,9 @@
 	<body>
 		<div class="weadmin-body">
 			<div id="codeEditor" style="width: 100%; height: 350px;"></div>
-			  <button class="layui-btn" lay-filter="update" onclick="update(this)">保存</button>	
+			  <button class="layui-btn" lay-filter="add" onclick="add(this)">保存</button>	
 		</div>
+
 		<script src="../../lib/layui/layui.js" charset="utf-8"></script>
 		<script src="https://cdn.bootcss.com/jsoneditor/5.13.1/jsoneditor.min.js"></script>
 		<script src="https://cdn.bootcss.com/ace/1.2.9/ace.js"></script>
@@ -43,33 +45,9 @@
 				var objURl=urlToJSON();
 				var tableName=objURl.tableName;
 				var dbName=objURl.dbName;
-				var id=objURl.id;
 				//初始化编辑器内容
 				var codeEditor = new JSONEditor(codeEditor, codeOptions, {});
-				
-				$(function(){
-					console.log(id);
-					 $.ajax({
-				            url: baseURl+"/mongo/findOne",
-				            dataType: "json",
-				            type: "post",
-				            async: false,
-				            data: {"tableName":tableName,"dbName":dbName,"id":id},
-				            success: function (data) {
-				                if (data.code == 0) {			
-				                	console.log(data);
-				                	codeEditor.set(data.data);
-				                }else{
-				                	layer.alert(data.msg);
-				                }
-				            },
-				        });
-				})
-				
-				
-				
-				
-				window.update = function (argument) {
+				window.add = function (argument) {
 						var codeContent = codeEditor.getText();
 						if(codeContent == ""){
 							layer.alert("请输入JSON数据");
@@ -79,13 +57,13 @@
 								// 获得frame索引
 								var index = parent.layer.getFrameIndex(window.name);
 								  $.ajax({
-							            url: baseURl+"/mongo/updateCollection",
+							            url: baseURl+"/mongo/saveCollection",
 							            dataType: "json",
 							            type: "post",
 							            data: {"tableName":tableName,"dbName":dbName,"parame":codeContent},
 							            success: function (data) {
 							                if (data.code == 0) {				              	
-							                	layer.msg('更新成功', {icon: 1, time: 1500}, function(){
+							                	layer.msg('添加成功', {icon: 1, time: 1500}, function(){
 							                			//关闭当前frame
 														parent.layer.close(index);
 							                		}); 
