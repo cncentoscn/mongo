@@ -1,16 +1,29 @@
 package com.qxw.web;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.bson.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
@@ -20,6 +33,8 @@ import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Sorts;
 import com.qxw.mongodb.MongoFactory;
 import com.qxw.mongodb.MongoSdkBase;
+import com.qxw.utils.CsvUtils;
+import com.qxw.utils.JsonFormatTool;
 import com.qxw.utils.Res;
 
 /**
@@ -29,14 +44,12 @@ import com.qxw.utils.Res;
  */
 @Controller
 @RequestMapping("mongo")
-public class MongoWebController {
-	/**
-	 * 条件操作符
-	 */
-//	private final static String GTE="$gte";
-//	private final static String LTE="$lte";
-//	private final static String IN="$in";
-//	private final static String REGEXS="$regex";
+public class WebController {
+	 private Logger logger = LoggerFactory.getLogger(getClass());
+	@Value("${login.username}")
+	private String username;
+	@Value("${login.password}")
+	private String password;
 	
     /**
      * 需要过滤的表
@@ -44,7 +57,29 @@ public class MongoWebController {
     private final static String[] TAVLEARR = {"system.indexes"};
 
 
-    	
+    
+    /**
+     * 模拟登录
+     * @param 
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/login")
+    public Res login(String uname,String pwd,HttpServletRequest request) {
+    	if(StringUtils.isEmpty(uname)||StringUtils.isEmpty(pwd)){
+    		return Res.error("账号密码不能为空");
+    	}
+    	if(username.equals(uname)){
+    			if(password.equals(pwd)){
+    				request.getSession().setAttribute("username", username);
+    				return Res.ok();
+    			}else{
+    				return Res.error("密码错误");
+    			}
+    	}else{
+    		return Res.error("账号不存在");
+    	}
+    }
     /**
      * 数据源列表
      * @param db
@@ -186,9 +221,56 @@ public class MongoWebController {
     		return Res.error("dbName,tableName,id,参数不能为空");
     	}
     	String result=MongoSdkBase.seleteOne(MongoSdkBase.getColl(dbName,tableName), id);
+    
         return Res.ok().put("data", JSONObject.parseObject(result));
     }
     
   
-    
+    /**
+ 	 * 导出清单
+ 	 * @param request
+ 	 * @param response
+ 	 */
+	@RequestMapping("/exportList")
+ 	public  void exportList(HttpServletRequest request,HttpServletResponse response,String dbName,String tableName,String parame) {
+		// 读取字符编码
+		String csvEncoding = "UTF-8";
+				// 设置响应
+		response.setCharacterEncoding(csvEncoding);
+	    response.setContentType("application/json; charset=" + csvEncoding);
+		response.setHeader("Pragma", "public");
+		response.setHeader("Cache-Control", "max-age=30");
+		OutputStream os=null;
+		try {
+			 BasicDBObject query = new BasicDBObject();
+		      if(!StringUtils.isEmpty(parame)){
+		        	JSONObject obj=JSONObject.parseObject(parame);
+		        	 Set<String> kyes=obj.keySet();
+		        	  kyes.forEach(key->{
+		        		    query.put(key,obj.get(key));
+		        	  });
+		      }
+		    List<JSONObject> list=MongoSdkBase.getAll(MongoSdkBase.getColl(dbName, tableName), query, Sorts.descending("_id"));
+		
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + tableName+".json" + "\"");			 
+			// 写出响应
+			os=response.getOutputStream();
+			
+			os.write(JsonFormatTool.formatJson(list.toString()).getBytes("GBK"));
+			os.flush();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			if(os!=null){
+				try {
+					os.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+	}
+
 }

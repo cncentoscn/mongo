@@ -7,30 +7,40 @@
 
 
 #### 软件架构
-springBoot2.0
-mongodb
-layerUI
+1. springBoot2.0相关组件
+1. mongodb
+1. layerUI
 
 ### 功能说明
 - Mongodb的多数据库查询
 - Mongodb的多数据对应下的表查询
 - Mongodb的指定表下的数据列表查询
 - Mongodb集合的增删改查
-- MongoDB 条件操作符查询 ` $gt, $lt, $gte,  $lte, $ne, $in, $regex  等等 `
+- Mongodb集合的导出表数据为格式化json文件
+- MongoDB 条件操作符查询 ` $gt, $lt, $gte,  $lte, $ne, $in, $regex  等等基本条件 `
 - MongoDB 聚合 aggregate() 方法（开发中）
 
 ### 启动运行
 1. application.properties 配置mongodb服务地址
 1. MongoWebSelectApplication 运行启动
-1. 访问 http://localhost:8080/index.html
+1. 访问 http://localhost:8080/login.html
 
 ### 效果图如下
 
-![输入图片说明](https://images.gitee.com/uploads/images/2018/1119/211831_c4cfd98b_1478371.png "屏幕截图.png")
+### 登录
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/153436_4417ccb3_1478371.png "屏幕截图.png")
+
+### 显示所有的数据源
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/153510_5e5a9d49_1478371.png "屏幕截图.png")
+
+### 显示指定数据源下的表
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/153553_91a7ba66_1478371.png "屏幕截图.png")
+
+### 查询指定表的数据
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/153736_3c90aafc_1478371.png "屏幕截图.png")
 
 
-### 查询方法(组装成json数据请求后台)
-
+### 条件查询方法(组装成json数据请求后台)
 ```
 查询指定的key: {"openid": "owibYt4P6Yu7gzsKdamO8CtRGxNk"}
 

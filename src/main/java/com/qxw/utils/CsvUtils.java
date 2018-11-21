@@ -1,5 +1,4 @@
 package com.qxw.utils;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,12 +7,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
@@ -22,23 +17,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
-  *  ┏┓　　　┏┓
-  *┏┛┻━━━┛┻┓
-  *┃　　　　　　　┃ 　
-  *┃　　　━　　　┃
-  *┃　┳┛　┗┳　┃
-  *┃　　　　　　　┃
-  *┃　　　┻　　　┃
-  *┃　　　　　　　┃
-  *┗━┓　　　┏━┛
-  *　　┃　　　┃神兽保佑
-  *　　┃　　　┃代码无BUG！
-  *　　┃　　　┗━━━┓
-  *　　┃　　　　　　　┣┓
-  *　　┃　　　　　　　┏┛
-  *　　┗┓┓┏━┳┓┏┛
-  *　　　┃┫┫　┃┫┫
-  *　　　┗┻┛　┗┻┛ 
+
   *　　　
   * @author Levan
   * @time 2017年11月20日上午11:25:41
@@ -46,13 +25,13 @@ import org.slf4j.LoggerFactory;
  */
 public class CsvUtils {
 	/** CSV文件列分隔符 */
-	private static final String CSV_COLUMN_SEPARATOR = ",";
+	public static final String CSV_COLUMN_SEPARATOR = ",";
 
 	/** CSV文件列分隔符 */
-	private static final String CSV_RN = "\r\n";
-	private final static Logger logger = LoggerFactory.getLogger(CsvUtils.class);
-	private final static String MSIE="MSIE";
-	private final static String MOZILLA="Mozilla";
+	public static final String CSV_RN = "\r\n";
+	public final static Logger logger = LoggerFactory.getLogger(CsvUtils.class);
+	public final static String MSIE="MSIE";
+	public final static String MOZILLA="Mozilla";
 	/**
 	 * 数据初始化
 	 * @param data 数据库查出来的数据
@@ -61,14 +40,10 @@ public class CsvUtils {
 	 * @param 例如 输入列名为"num"数字为 001，则传入的key值为"-num",保证输出为字符串
 	 * @return
 	 */
-	public static String formatCsvData(List<Map<String, Object>> data,
-			String displayColNames, String matchColNames) {
-
+	public static String formatCsvData(List<Map<String, Object>> data,String displayColNames, String matchColNames) {
 		StringBuffer buf = new StringBuffer();
-
 		String[] displayColNamesArr = null;
 		String[] matchColNamesMapArr = null;
-
 		displayColNamesArr = displayColNames.split(",");
 		matchColNamesMapArr = matchColNames.split(",");
 
@@ -77,11 +52,9 @@ public class CsvUtils {
 			buf.append(displayColNamesArr[i]).append(CSV_COLUMN_SEPARATOR);
 		}
 		buf.append(CSV_RN);
-
 		if (null != data) {
 			// 输出数据
 			for (int i = 0; i < data.size(); i++) {
-
 				for (int j = 0; j < matchColNamesMapArr.length; j++) {
 					//处理list<Map>中 value=null的数据
 					Object object = data.get(i).get(matchColNamesMapArr[j]);
@@ -113,38 +86,45 @@ public class CsvUtils {
 	 * @param response
 	 * @throws IOException
 	 */
- 	public static void exportCsv(String fileName, String content,HttpServletRequest request, 
-			HttpServletResponse response) throws IOException {
+ 	public static void exportCsv(String fileName, String content,HttpServletRequest request, HttpServletResponse response){
 
 		// 读取字符编码
 		String csvEncoding = "UTF-8";
-
 		// 设置响应
 		response.setCharacterEncoding(csvEncoding);
 		response.setContentType("text/csv; charset=" + csvEncoding);
 		response.setHeader("Pragma", "public");
 		response.setHeader("Cache-Control", "max-age=30");
-		
+		OutputStream os=null;
 		final String userAgent = request.getHeader("USER-AGENT");
-		
-		if(StringUtils.contains(userAgent,MSIE)){
-			//IE浏览器
-			 fileName = URLEncoder.encode(fileName,"UTF8");
-        }else if(StringUtils.contains(userAgent,MOZILLA)){
-        	//google,火狐浏览器
-        	 fileName = new String(fileName.getBytes(), "ISO8859-1");
-        }else{
-        	//其他浏览器
-        	 fileName = URLEncoder.encode(fileName,"UTF8");
-        }
-		response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
-		 
-		// 写出响应
-		OutputStream os = response.getOutputStream();
-		os.write(content.getBytes("GBK"));
-		os.flush();
-		os.close();
-		logger.info("csv file download completed");
+		try {
+			if(StringUtils.contains(userAgent,MSIE)){
+				//IE浏览器
+				 fileName = URLEncoder.encode(fileName,"UTF8");
+	        }else if(StringUtils.contains(userAgent,MOZILLA)){
+	        	//google,火狐浏览器
+	        	 fileName = new String(fileName.getBytes(), "ISO8859-1");
+	        }else{
+	        	//其他浏览器
+	        	 fileName = URLEncoder.encode(fileName,"UTF8");
+	        }
+			response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");			 
+			// 写出响应
+			os=response.getOutputStream();
+			os.write(content.getBytes("GBK"));
+			os.flush();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			if(os!=null){
+				try {
+					os.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
  	
  	

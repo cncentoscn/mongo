@@ -30,7 +30,7 @@
 		<div class="weadmin-body">		
 			<div class="weadmin-block">
 				<button class="layui-btn" onclick="add()"><i class="layui-icon"></i>添加</button>
-				<button class="layui-btn" onclick="exportCvs()"><i class="layui-icon">&#xe641;</i>导出</button>
+				<button class="layui-btn" onclick="exportJson()"><i class="layui-icon">&#xe641;</i>导出JSON文件</button>
 				<button class="layui-btn" lay-submit="" lay-filter="sreach" onclick="sreach()"><i class="layui-icon">&#xe615;</i>查询</button>
 				<span class="fr" style="line-height:40px" id="totalCount"></span>
 				<a class="layui-btn layui-btn-sm" style="line-height:1.6em;margin-top:3px;float:right" href="javascript:location.replace(location.href);" title="刷新">
@@ -199,8 +199,8 @@
 				  }
 
 					//导出
-					window.exportCvs = function (argument){
-						layer.msg('开发中....', {icon: 1, time: 1000}, function(){}); 
+					window.exportJson = function (argument){
+						window.open(baseURl + '/mongo/exportList?tableName='+tableName+'&dbName='+dbName+'&parame='+parame);
 					}
 					
 			});

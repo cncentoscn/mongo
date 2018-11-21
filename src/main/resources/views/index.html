@@ -24,6 +24,41 @@
 			<div class="left_open">
 				<i title="展开左侧栏" class="iconfont">&#xe699;</i>
 			</div>
+			<!--  
+			<ul class="layui-nav left fast-add" lay-filter="">
+				<li class="layui-nav-item">
+					<a href="javascript:;">+新增</a>
+					<dl class="layui-nav-child">
+						<dd>
+							<a onclick="WeAdminShow('资讯','https://www.youfa365.com/')"><i class="iconfont">&#xe6a2;</i>资讯</a>
+						</dd>
+						<dd>
+							<a onclick="WeAdminShow('图片','http://www.baidu.com')"><i class="iconfont">&#xe6a8;</i>图片</a>
+						</dd>
+						<dd>
+							<a onclick="WeAdminShow('用户','https://www.youfa365.com/')"><i class="iconfont">&#xe6b8;</i>用户</a>
+						</dd>
+					</dl>
+				</li>
+			</ul>-->
+			
+			<ul class="layui-nav right" lay-filter="">
+				<li class="layui-nav-item">
+					<a href="javascript:;">系统管理</a>
+					<dl class="layui-nav-child">
+						<dd>
+							<a onclick="WeAdminShow('源码地址','https://gitee.com/qinxuewu')">源码地址</a>
+						</dd>
+						<dd>
+							<a class="loginout" href="login.html">退出</a>
+						</dd>
+					</dl>
+				</li>
+				<li class="layui-nav-item to-index">
+					<a href="javascript:;">前台首页</a>
+				</li>
+			</ul>
+
 		</div>
 		<!-- 顶部结束 -->
 		<!-- 中部开始 -->
@@ -51,11 +86,11 @@
 		<div class="page-content">
 			<div class="layui-tab tab" lay-filter="wenav_tab" id="WeTabTip" lay-allowclose="true">
 				<ul class="layui-tab-title" id="tabName">
-					<li>我的桌面</li>
+					<li>主页</li>
 				</ul>
 				<div class="layui-tab-content">
 					<div class="layui-tab-item layui-show">
-						<iframe src='./pages/welcome.html?dbName=xx' frameborder="0" scrolling="yes" class="weIframe" name="container"></iframe>
+						<iframe src='./pages/welcome.html' frameborder="0" scrolling="yes" class="weIframe"></iframe>
 					</div>
 				</div>
 			</div>
@@ -65,7 +100,7 @@
 		<!-- 中部结束 -->
 		<!-- 底部开始 -->
 		<div class="footer">
-			<div class="copyright"></div>
+			<div class="copyright">Copyright ©2018 Mongodb WeAdmin v1.0管理工具</div>
 		</div>
 		<!-- 底部结束 -->
 		<script type="text/javascript">
@@ -78,47 +113,33 @@
 //			  var admin = layui.admin;
 //			});
 			layui.config({
-			  base: './static/js/'
-			  ,version: '2.0'
-			}).use('admin');
-			layui.use(['jquery','admin'], function(){
-				var $ = layui.jquery;
-				$(function(){
-					
-					/**var login = JSON.parse(localStorage.getItem("login"));
-					if(login){
-						if(login=0){
-							window.location.href='./login.html';
-							return false;
-						}else{
-							return false;
-						}
-					}else{
-						window.location.href='./login.html';
-						return false;
-					}**/
+				  base: './static/js/'
+				  ,version: '2.0'
+				}).use('admin');
+				layui.use(['jquery','admin'], function(){
+					var $ = layui.jquery;
+					$(function(){
+					        $.ajax({
+					            url: baseURl+"/mongo/index",
+					            dataType: "json",
+					            type: "get",
+					            success: function (data) {
+					                if (data.code == 0) {
+					                    $.each(data.listNames, function (index, obj) {
+					                    	var html='<li ><a _href="./pages/mongodb/dblist.html" data-name="'+obj+'" >';
+					                    		html+='<i class="layui-icon layui-icon-layer" style="font-size: 15px; color: #e45b3a;"></i>';	
+					                    		html+='<cite>'+obj+'</cite>';	
+					                    		html+='</a></li>';
+					                           $(".sub-menu").append(html)
+					                    })
+					                }
+					            }
+					        })
+					        
+					});
+				});	
 	
-				        $.ajax({
-				            url: baseURl+"/mongo/index",
-				            dataType: "json",
-				            type: "get",
-				            success: function (data) {
-				                if (data.code == 0) {
-				                    $.each(data.listNames, function (index, obj) {
-				                    	var html='<li ><a _href="./pages/mongodb/dblist.html" data-name="'+obj+'" >';
-				                    		html+='<i class="layui-icon layui-icon-layer" style="font-size: 15px; color: #e45b3a;"></i>';	
-				                    		html+='<cite>'+obj+'</cite>';	
-				                    		html+='</a></li>';
-				                           $(".sub-menu").append(html)
-				                    })
-				                }
-				            }
-				        })
-				        
-				});
-			});	
-			
-		</script>
+			</script>
 	</body>
 	<!--Tab菜单右键弹出菜单-->
 	<ul class="rightMenu" id="rightMenu">

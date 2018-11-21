@@ -63,7 +63,7 @@ public class MongoSdkBase {
      * obj double 处理不规范
      * @return
      */
-    @SuppressWarnings({ "rawtypes", "static-access", "unchecked" })
+    @SuppressWarnings({ "rawtypes", "unchecked"})
 	public static String insertOne(MongoCollection table, Object obj) {
         if (obj == null) {return null;}
         Document docine =Document.parse(diyObjectIdToJson(obj));
