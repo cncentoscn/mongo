@@ -49,7 +49,7 @@ public class MongoSdkBase {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static String insertOneDocument(MongoCollection table, Document doc) {
-        if (doc == null){ return null};
+        if (doc == null){ return null;}
         doc.remove("_id");
         doc.put("_id", new ObjectId().toString());
         table.insertOne(doc);
@@ -65,8 +65,8 @@ public class MongoSdkBase {
      */
     @SuppressWarnings({ "rawtypes", "static-access", "unchecked" })
 	public static String insertOne(MongoCollection table, Object obj) {
-        if (obj == null) {return null};
-        Document docine =Document().parse(diyObjectIdToJson(obj));
+        if (obj == null) {return null;}
+        Document docine =Document.parse(diyObjectIdToJson(obj));
         docine.remove("_id");
         docine.put("_id", new ObjectId().toString());
         table.insertOne(docine);
@@ -81,8 +81,8 @@ public class MongoSdkBase {
      * @return
      */
     @SuppressWarnings("rawtypes")
-	public static int deleteOne(MongoCollection table, String _id) {
-        Bson filter = eq("_id", _id);
+	public static int deleteOne(MongoCollection table, String id) {
+        Bson filter = eq("_id", id);
         DeleteResult re = table.deleteOne(filter);
         return (int) re.getDeletedCount();
     }
@@ -96,9 +96,9 @@ public class MongoSdkBase {
      * @return
      */
     @SuppressWarnings("rawtypes")
-	public static boolean updateOne(MongoCollection table, String _id, Object obj) {
-        Bson filter = eq("_id", _id);
-        table.updateOne(filter, _set(diyObjectIdToJson(obj)));
+	public static boolean updateOne(MongoCollection table, String id, Object obj) {
+        Bson filter = eq("_id", id);
+        table.updateOne(filter, set(diyObjectIdToJson(obj)));
         return true;
     }
 
@@ -110,8 +110,8 @@ public class MongoSdkBase {
      * @return
      */
     @SuppressWarnings("rawtypes")
-	public static String seleteOne(MongoCollection table, String _id) {
-        Bson filter = eq("_id", _id);
+	public static String seleteOne(MongoCollection table, String id) {
+        Bson filter = eq("_id", id);
         return diyObjectIdToJson(seleteOneDocument(table, filter));
     }
 
@@ -168,7 +168,7 @@ public class MongoSdkBase {
     }
 
     @SuppressWarnings("rawtypes")
-	public static List<JSONObject> getAll_byCid(MongoCollection table, int cid) {
+	public static List<JSONObject> getAllbyCid(MongoCollection table, int cid) {
         return getAll(table, eq("cid", cid), null);
     }
 
@@ -185,7 +185,7 @@ public class MongoSdkBase {
 	public static JSONObject getPage(MongoCollection table, Bson filter, Bson sort, int pageNum, int pageSize) {
         int totalCount = (int) (filter == null ? table.count(): table.count(filter));
         int totalPage = (int) (totalCount / pageSize + ((totalCount % pageSize == 0) ? 0 : 1));
-        if (pageNum > totalPage){ pageNum = totalPage};
+        if (pageNum > totalPage){ pageNum = totalPage;}
         JSONObject msg = new JSONObject();
         msg.put("pageNum", pageNum);
         msg.put("pageSize", pageSize);
@@ -262,40 +262,7 @@ public class MongoSdkBase {
 	}
 
 
-    /******************************以下为工具*************************************/
-    /**
-     * 获得自增id 返回一个可用最大id
-     *
-     * @param type 类型 必须
-     */
-    public static int getAutoIncId(String type) {
-        return getAutoIncId(type, 0);
-    }
-
-    /**
-     * 获得自增id 返回一个可用最大id
-     *
-     * @param type 类型 必须
-     * @param def  初始值
-     * @return
-     */
-    @SuppressWarnings("rawtypes")
-	public static int getAutoIncId(String type, int def) {
-        if (type == null || "".equals(type)) {return 0};
-        MongoDatabase db = MongoFactory.getMongoDb();
-        MongoCollection table = db.getCollection("ids");
-        Bson filter = and(eq("type", type));
-        Document oo = (Document) table.findOneAndUpdate(filter,
-                combine(inc("id", 1), set("date", new Date()), setOnInsert("_id", new ObjectId().toString())),
-                new FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER));
-        int id = oo.getInteger("id");
-        if (id < def) {
-            Document oo2 = (Document) table.findOneAndUpdate(filter, inc("id", def),
-                    new FindOneAndUpdateOptions().upsert(true).returnDocument(ReturnDocument.AFTER));
-            return oo2.getInteger("id");
-        }
-        return id;
-    }
+  
 
     /**
      * 更新数据 注意 多余字段 会在库表记录追加
@@ -303,8 +270,7 @@ public class MongoSdkBase {
      * @param json
      * @return
      */
-    @SuppressWarnings("static-access")
-	public static Document _set(String json) {
+	public static Document set(String json) {
         Document b =Document.parse(json);
         b.remove("_id");
         return new Document("$set", b);

@@ -52,7 +52,7 @@ public class CsvUtils {
 	private static final String CSV_RN = "\r\n";
 	private final static Logger logger = LoggerFactory.getLogger(CsvUtils.class);
 	private final static String MSIE="MSIE";
-	private final static String MoZILLA="Mozilla";
+	private final static String MOZILLA="Mozilla";
 	/**
 	 * 数据初始化
 	 * @param data 数据库查出来的数据
@@ -130,7 +130,7 @@ public class CsvUtils {
 		if(StringUtils.contains(userAgent,MSIE)){
 			//IE浏览器
 			 fileName = URLEncoder.encode(fileName,"UTF8");
-        }else if(StringUtils.contains(userAgent,MoZILLA)){
+        }else if(StringUtils.contains(userAgent,MOZILLA)){
         	//google,火狐浏览器
         	 fileName = new String(fileName.getBytes(), "ISO8859-1");
         }else{
