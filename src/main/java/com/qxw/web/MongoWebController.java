@@ -20,7 +20,7 @@ import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Sorts;
 import com.qxw.mongodb.MongoFactory;
 import com.qxw.mongodb.MongoSdkBase;
-import com.qxw.utils.R;
+import com.qxw.utils.Res;
 
 /**
  * mongodb web
@@ -52,9 +52,9 @@ public class MongoWebController {
      */
     @ResponseBody
     @RequestMapping("/index")
-    public R index() {
+    public Res index() {
         List<String> listNames =MongoFactory.getDbList();
-        return R.ok().put("listNames", listNames);
+        return Res.ok().put("listNames", listNames);
     }
 
     /**
@@ -64,9 +64,9 @@ public class MongoWebController {
      */
     @ResponseBody
     @RequestMapping("/db")
-    public R db(String dbName) {
+    public Res db(String dbName) {
     	if(StringUtils.isEmpty(dbName)){
-    		return R.error("dbName参数不能为空");
+    		return Res.error("dbName参数不能为空");
     	}
         MongoDatabase mogo = MongoFactory.getMongoDb(dbName);
         //获取所有集合的名称
@@ -80,7 +80,7 @@ public class MongoWebController {
 			}
 
         }
-        return R.ok().put("listNames", listNames);
+        return Res.ok().put("listNames", listNames);
     }
 
     /***
@@ -92,10 +92,10 @@ public class MongoWebController {
      */
     @ResponseBody
     @RequestMapping("/getCollection")
-    public R getCollection(@RequestParam(value = "p", defaultValue = "1") int pageNum,@RequestParam(value = "s", defaultValue = "10") int pageSize,
+    public Res getCollection(@RequestParam(value = "p", defaultValue = "1") int pageNum,@RequestParam(value = "s", defaultValue = "10") int pageSize,
     		String dbName,String tableName,String parame) {
     	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)){
-    		return R.error("dbName,tableName参数不能为空");
+    		return Res.error("dbName,tableName参数不能为空");
     	}
         BasicDBObject query = new BasicDBObject();
         if(!StringUtils.isEmpty(parame)){
@@ -114,7 +114,7 @@ public class MongoWebController {
         if(obj!=null) {
         	m.put("keys", obj.keySet());
         }
-        return R.ok(m);
+        return Res.ok(m);
     }     
    
     /**
@@ -126,12 +126,12 @@ public class MongoWebController {
      */
     @ResponseBody
     @RequestMapping("/deleteCollection")
-    public R deleteCollection(String dbName,String tableName, String id){
+    public Res deleteCollection(String dbName,String tableName, String id){
     	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)||StringUtils.isEmpty(id)){
-    		return R.error("dbName,tableName,id,参数不能为空");
+    		return Res.error("dbName,tableName,id,参数不能为空");
     	}
     	int count=MongoSdkBase.deleteOne(MongoSdkBase.getColl(dbName,tableName),id);
-        return count>0?R.ok():R.error("删除失败");
+        return count>0?Res.ok():Res.error("删除失败");
     }
 
     /**
@@ -143,14 +143,14 @@ public class MongoWebController {
      */
     @ResponseBody
     @RequestMapping("/updateCollection")
-    public R updateCollection(String dbName,String tableName, String parame){
+    public Res updateCollection(String dbName,String tableName, String parame){
     	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)||StringUtils.isEmpty(parame)){
-    		return R.error("dbName,tableName,parame,参数不能为空");
+    		return Res.error("dbName,tableName,parame,参数不能为空");
     	}
     	JSONObject info=JSONObject.parseObject(parame);
     	String id=info.getString("_id");
     	boolean falg=MongoSdkBase.updateOne(MongoSdkBase.getColl(dbName,tableName), id, info);
-        return falg==true?R.ok():R.error("更新失败");
+        return falg==true?Res.ok():Res.error("更新失败");
     }
     
     /**
@@ -162,13 +162,13 @@ public class MongoWebController {
      */
     @ResponseBody
     @RequestMapping("/saveCollection")
-    public R saveCollection(String dbName,String tableName, String parame){
+    public Res saveCollection(String dbName,String tableName, String parame){
     	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)||StringUtils.isEmpty(parame)){
-    		return R.error("dbName,tableName,parame,参数不能为空");
+    		return Res.error("dbName,tableName,parame,参数不能为空");
     	}
     	JSONObject info=JSONObject.parseObject(parame);
     	String id=MongoSdkBase.insertOne(MongoSdkBase.getColl(dbName,tableName), info);
-        return StringUtils.isEmpty(id)?R.error("添加失败"):R.ok();
+        return StringUtils.isEmpty(id)?Res.error("添加失败"):Res.ok();
     }
     
  
@@ -181,12 +181,12 @@ public class MongoWebController {
      */
     @ResponseBody
     @RequestMapping("/findOne")
-    public R findOne(String dbName,String tableName, String id){
+    public Res findOne(String dbName,String tableName, String id){
     	if(StringUtils.isEmpty(dbName)||StringUtils.isEmpty(tableName)||StringUtils.isEmpty(id)){
-    		return R.error("dbName,tableName,id,参数不能为空");
+    		return Res.error("dbName,tableName,id,参数不能为空");
     	}
     	String result=MongoSdkBase.seleteOne(MongoSdkBase.getColl(dbName,tableName), id);
-        return R.ok().put("data", JSONObject.parseObject(result));
+        return Res.ok().put("data", JSONObject.parseObject(result));
     }
     
   

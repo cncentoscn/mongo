@@ -49,7 +49,7 @@ public class MongoSdkBase {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static String insertOneDocument(MongoCollection table, Document doc) {
-        if (doc == null) return null;
+        if (doc == null){ return null};
         doc.remove("_id");
         doc.put("_id", new ObjectId().toString());
         table.insertOne(doc);
@@ -65,8 +65,8 @@ public class MongoSdkBase {
      */
     @SuppressWarnings({ "rawtypes", "static-access", "unchecked" })
 	public static String insertOne(MongoCollection table, Object obj) {
-        if (obj == null) return null;
-        Document docine = new Document().parse(diyObjectIdToJson(obj));
+        if (obj == null) {return null};
+        Document docine =Document().parse(diyObjectIdToJson(obj));
         docine.remove("_id");
         docine.put("_id", new ObjectId().toString());
         table.insertOne(docine);
@@ -185,7 +185,7 @@ public class MongoSdkBase {
 	public static JSONObject getPage(MongoCollection table, Bson filter, Bson sort, int pageNum, int pageSize) {
         int totalCount = (int) (filter == null ? table.count(): table.count(filter));
         int totalPage = (int) (totalCount / pageSize + ((totalCount % pageSize == 0) ? 0 : 1));
-        if (pageNum > totalPage) pageNum = totalPage;
+        if (pageNum > totalPage){ pageNum = totalPage};
         JSONObject msg = new JSONObject();
         msg.put("pageNum", pageNum);
         msg.put("pageSize", pageSize);
@@ -281,7 +281,7 @@ public class MongoSdkBase {
      */
     @SuppressWarnings("rawtypes")
 	public static int getAutoIncId(String type, int def) {
-        if (type == null || "".equals(type)) return 0;
+        if (type == null || "".equals(type)) {return 0};
         MongoDatabase db = MongoFactory.getMongoDb();
         MongoCollection table = db.getCollection("ids");
         Bson filter = and(eq("type", type));
@@ -305,7 +305,7 @@ public class MongoSdkBase {
      */
     @SuppressWarnings("static-access")
 	public static Document _set(String json) {
-        Document b = new Document().parse(json);
+        Document b =Document.parse(json);
         b.remove("_id");
         return new Document("$set", b);
     }

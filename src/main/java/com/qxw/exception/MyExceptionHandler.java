@@ -3,7 +3,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import com.qxw.utils.R;
+import com.qxw.utils.Res;
 
 /**
  * 通用异常处理器
@@ -11,15 +11,15 @@ import com.qxw.utils.R;
  * @data 2018年11月20日上午11:22:52
  */
 @RestControllerAdvice
-public class RRExceptionHandler {
+public class MyExceptionHandler {
 	  private Logger logger = LoggerFactory.getLogger(getClass());
 
 	    /**
 	     * 处理自定义异常
 	     */
-	    @ExceptionHandler(RRException.class)
-	    public R handleRRException(RRException e) {
-	        R r = new R();
+	    @ExceptionHandler(MyException.class)
+	    public Res handleRRException(MyException e) {
+	        Res r = new Res();
 	        r.put("code", e.getCode());
 	        r.put("msg", e.getMessage());
 	        logger.error("自定义RRException异常：{}", e);
@@ -27,8 +27,8 @@ public class RRExceptionHandler {
 	    }
 
 	    @ExceptionHandler(Exception.class)
-	    public R handleException(Exception e) {
+	    public Res handleException(Exception e) {
 	        logger.error("全局Exception异常：{}", e);
-	        return R.error();
+	        return Res.error();
 	    }
 }

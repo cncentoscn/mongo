@@ -27,3 +27,26 @@ layerUI
 ### 效果图如下
 
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/1119/211831_c4cfd98b_1478371.png "屏幕截图.png")
+
+
+### 查询方法(组装成json数据请求后台)
+
+```
+查询指定的key: {"openid": "owibYt4P6Yu7gzsKdamO8CtRGxNk"}
+
+使用 (<=) 和 (>=) 查询 {"createtime": {$gte: "2017-01-27 18:24:38", $lte: "2017-05-27 18:24:38"}}
+
+使用  $in 查询 {"id":{$in:"1,2,3,4,5,6"}
+
+使用  $regex 模糊查询  {"city":{"$regex":"广"}
+
+使用 多条件组合查询 {"city":{"$regex":"广"},"province":"广东","subscribe":1,"sourceType":{"$in":["304517"]}}
+
+更多查询条件 参考  http://www.runoob.com/mongodb/mongodb-window-install.html
+```
+
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/102443_d1388d16_1478371.png "屏幕截图.png")
+
+### 添加 删除，修改(添加，修改后点击右上角刷新按钮)
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/102729_8c3892a1_1478371.png "屏幕截图.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/102746_e486eb86_1478371.png "屏幕截图.png")

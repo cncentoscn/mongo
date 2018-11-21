@@ -22,6 +22,7 @@
 			      <h3 class="layui-timeline-title">查询方法(组装成json数据请求后台)</h3>
 			      <p>
 			        <br>查询指定的key: {"openid": "owibYt4P6Yu7gzsKdamO8CtRGxNk"}
+			         <br>json中嵌套json查询指定的key:{"params.uid":65950}
 			      </p>
 			    </div>
 			  </li>
@@ -37,7 +38,7 @@
 			  <li class="layui-timeline-item">
 			    <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
 			    <div class="layui-timeline-content layui-text">
-			      <h3 class="layui-timeline-title">使用  in 查询</h3>
+			      <h3 class="layui-timeline-title">使用  $in 查询</h3>
 			      <ul>
 			        <li>{"id":{$in:"1,2,3,4,5,6"}</li>
 			      </ul>
@@ -46,9 +47,36 @@
 			  <li class="layui-timeline-item">
 			    <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
 			    <div class="layui-timeline-content layui-text">
+			      <h3 class="layui-timeline-title">使用  $regex 模糊查询</h3>
+			      <ul>
+			        <li>{"city":{"$regex":"广"}</li>
+			      </ul>
+			    </div>
+			  </li>
+			   <li class="layui-timeline-item">
+			    <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+			    <div class="layui-timeline-content layui-text">
+			      <h3 class="layui-timeline-title">使用 多条件组合查询</h3>
+			      <ul>
+			        <li>{"city":{"$regex":"广"},"province":"广东","subscribe":1,"sourceType":{"$in":["304517"]}}</li>
+			      </ul>
+			    </div>
+			  </li>
+			  <li class="layui-timeline-item">
+			    <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+			    <div class="layui-timeline-content layui-text">
 			      <h3 class="layui-timeline-title">使用$group分组查询</h3>
 			      <ul>
-			        <li>xxxxxxxxxxxxxxxxxxxxxxx</li>
+			        <li>开发中</li>
+			      </ul>
+			    </div>
+			  </li>
+			   <li class="layui-timeline-item">
+			    <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+			    <div class="layui-timeline-content layui-text">
+			      <h3 class="layui-timeline-title">更多查询条件 参考</h3>
+			      <ul>
+			        <li>http://www.runoob.com/mongodb/mongodb-window-install.html</li>
 			      </ul>
 			    </div>
 			  </li>
