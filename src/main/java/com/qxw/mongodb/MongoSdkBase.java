@@ -44,7 +44,7 @@ public class MongoSdkBase {
     /***
      * 插入单条记录
      * @param table  表连接
-     * @param obj Document
+     * @param doc Document
      * @return
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -216,7 +216,6 @@ public class MongoSdkBase {
      *
      * @param table    表连接
      * @param filter   条件  com.mongodb.client.model.Filter
-     * @param sort     排序    com.mongodb.client.model.Sorts
      * @param pageNum
      * @param pageSize
      * @return

@@ -9,7 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.mongodb.DB;
 import com.mongodb.DBObject;
+import com.qxw.utils.ByteConvKbUtils;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,12 +47,11 @@ public class WebController {
 	private String username;
 	@Value("${login.password}")
 	private String password;
-	
-    /**
-     * 需要过滤的表
-     */
-    private final static String[] TAVLEARR = {"system.indexes"};
 
+	/**
+	 * 需要过滤的表
+	 */
+	private final static String[] TAVLEARR = {"system.indexes"};
 
     
     /**
@@ -82,6 +84,10 @@ public class WebController {
     @RequestMapping("/index")
     public Res index() {
         List<String> listNames =MongoFactory.getDbList();
+        //系统表过滤
+        listNames.remove("admin");
+        listNames.remove("local");
+        logger.info(listNames.toString());
         return Res.ok().put("listNames", listNames);
     }
 
@@ -93,6 +99,7 @@ public class WebController {
     @ResponseBody
     @RequestMapping("/db")
     public Res db(String dbName) {
+
     	if(StringUtils.isEmpty(dbName)){
     		return Res.error("dbName参数不能为空");
     	}
@@ -103,11 +110,15 @@ public class WebController {
         //获取所有集合的名称
         MongoIterable<String> collectionNames = mogo.listCollectionNames();
         MongoCursor<String> i = collectionNames.iterator();
-        List<String> listNames = new ArrayList<String>();
+        List<JSONObject> listNames = new ArrayList<JSONObject>();
         while (i.hasNext()) {
             String tableName = i.next();
-			if(!Arrays.asList(TAVLEARR).contains(tableName)){
-	            listNames.add(tableName);
+			if(!Arrays.asList(TAVLEARR).contains(tableName)) {
+				JSONObject t = new JSONObject();
+				t.put("tableName", tableName);
+				BasicDBObject obj = MongoFactory.getStats(dbName, tableName);
+				t.put("size", ByteConvKbUtils.getPrintSize(obj.getInt("size")));
+				listNames.add(t);
 			}
 
         }

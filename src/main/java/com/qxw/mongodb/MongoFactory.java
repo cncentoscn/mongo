@@ -4,13 +4,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.mongodb.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import com.qxw.utils.CommonApi;
 
@@ -28,7 +25,7 @@ public class MongoFactory {
 
     /***
      * 设置mongo参数
-     * @param mongo_host_port //域名 端口
+     * @param hostPort //域名 端口
      * @param upd  用户名 密码 数据  “:”分隔
      * @return
      */
@@ -69,6 +66,7 @@ public class MongoFactory {
                         serverAddress.add(new ServerAddress(h[0], Integer.parseInt(h[1])));
                     }
                     mongoClient = new MongoClient(serverAddress, mongoCredential,option);
+
                 }
                 logger.info("mongoClient 偏好为=" + mongoClient.getReadPreference().toString());
             } catch (Exception e) {
@@ -126,6 +124,19 @@ public class MongoFactory {
         if (mongoClient == null) {
             initDBPrompties();
         }
+
         return mongoClient;
+    }
+
+    /***
+     * 获取表想详细内存占用信息
+     * @return
+     */
+    public static BasicDBObject getStats(String name,String collection){
+        if (mongoClient == null) {
+            initDBPrompties();
+        }
+        DB db=new DB(mongoClient,name);
+        return db.getCollection(collection).getStats();
     }
 }

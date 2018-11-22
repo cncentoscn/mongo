@@ -16,7 +16,7 @@
 	    <![endif]-->
 	    <style type="text/css">
 		   .dblist ul {list-style-type: none;margin:0; padding:0;}
-		   .dblist ul li {float:left;width: 260px;margin-left: 30px;margin-top: 30px;}
+		   .dblist ul li {float:left;width: 350px;margin-left: 30px;margin-top: 30px;}
 	    </style>
 	</head>
 
@@ -74,8 +74,8 @@
 
 			                if (data.code == 0) {
 			                    $.each(data.listNames, function (index, obj) {
-			                    	var html='<li data-name="'+obj+'" ><a href="javascript:;"><i class="layui-icon layui-icon-template-1" style="font-size: 30px; color: #e68060;"></i>';
-			                    		html+='<span style="margin-left: 10px;">'+obj+'</span></a></li>';
+			                    	var html='<li data-name="'+obj.tableName+'" ><a href="javascript:;"><i class="layui-icon layui-icon-template-1" style="font-size: 30px; color: #e68060;"></i>';
+			                    		html+='<span style="margin-left: 10px;font-size: 20px;">'+obj.tableName+'</span><span style="margin-left: 10px;font-size: 10px;">'+obj.size+'</span></span></a></li>';
 			                        $("#list").append(html)
 			                    })
 			                }else{
