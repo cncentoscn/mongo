@@ -2,7 +2,7 @@
 
 #### 项目介绍
 - Mongodb网页管理工具,基于Spring Boot2.0，前端采用layerUI实现。
-- 源于线上环境部署mongodb时屏蔽了外网访问mongodb,所以使用不了mongochef这样方便的远程连接工具，所以Mongodb提供的java api实现的的网页版实现
+- 源于线上环境部署mongodb时屏蔽了外网访问mongodb,所以使用不了mongochef这样方便的远程连接工具，便Mongodb提供的java api实现的的网页版管理
 - 未设置登录权限相关模块，低耦合性 方便复制代码嵌入到现有的项目中
 
 
