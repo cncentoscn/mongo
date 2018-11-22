@@ -83,7 +83,7 @@ public class MongoFactory {
     
     
     /***
-     * 获取数据库 名为shake
+     * 获取数据库
      * @return
      */
     public static MongoDatabase getMongoDb() {

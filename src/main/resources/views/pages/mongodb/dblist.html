@@ -63,7 +63,7 @@
 				 var obj=urlToJSON();
 				  $("#list").html('');
 			        var dbName=obj.dbName;  
-			        var index = layer.load();
+
 			        $.ajax({
 			            url: baseURl+"/mongo/db",
 			            dataType: "json",
@@ -71,14 +71,17 @@
 			            async: false,
 			            data: {"dbName":dbName},
 			            success: function (data) {
-			            	layer.close(index);
+
 			                if (data.code == 0) {
 			                    $.each(data.listNames, function (index, obj) {
 			                    	var html='<li data-name="'+obj+'" ><a href="javascript:;"><i class="layui-icon layui-icon-template-1" style="font-size: 30px; color: #e68060;"></i>';
 			                    		html+='<span style="margin-left: 10px;">'+obj+'</span></a></li>';
 			                        $("#list").append(html)
 			                    })
-			                }
+			                }else{
+                                layer.msg(data.msg, {icon: 2, time: 2000}, function(){});
+
+                            }
 			            }
 			        });
 			        

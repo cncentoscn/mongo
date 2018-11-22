@@ -1,19 +1,15 @@
 package com.qxw.web;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import com.mongodb.DBObject;
 import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +19,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.alibaba.fastjson.JSONObject;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
@@ -33,7 +28,6 @@ import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Sorts;
 import com.qxw.mongodb.MongoFactory;
 import com.qxw.mongodb.MongoSdkBase;
-import com.qxw.utils.CsvUtils;
 import com.qxw.utils.JsonFormatTool;
 import com.qxw.utils.Res;
 
@@ -82,7 +76,6 @@ public class WebController {
     }
     /**
      * 数据源列表
-     * @param db
      * @return
      */
     @ResponseBody
@@ -103,6 +96,9 @@ public class WebController {
     	if(StringUtils.isEmpty(dbName)){
     		return Res.error("dbName参数不能为空");
     	}
+    	if("undefined".equals(dbName)){
+			return Res.error("请关闭所有的iframe后在执行F5");
+		}
         MongoDatabase mogo = MongoFactory.getMongoDb(dbName);
         //获取所有集合的名称
         MongoIterable<String> collectionNames = mogo.listCollectionNames();
@@ -133,15 +129,27 @@ public class WebController {
     		return Res.error("dbName,tableName参数不能为空");
     	}
         BasicDBObject query = new BasicDBObject();
+		BasicDBObject group = new BasicDBObject();
         if(!StringUtils.isEmpty(parame)){
         	JSONObject obj=JSONObject.parseObject(parame);
         	 Set<String> kyes=obj.keySet();
         	 kyes.forEach(key->{
-        		    query.put(key,obj.get(key));
+        		 	if(key.equals("$group")){
+						group.put(key,obj.get(key));
+					}else {
+						query.put(key, obj.get(key));
+					}
         	  });
         }
+
         MongoCollection<Document> table = MongoSdkBase.getColl(dbName,tableName);
-        JSONObject data = MongoSdkBase.getPage(table, query, Sorts.descending("_id"), pageNum, pageSize);
+		JSONObject data=null;
+		if(group.size()==0){
+			data=MongoSdkBase.getPage(table, query, Sorts.descending("_id"), pageNum, pageSize);
+		}else{
+			data=MongoSdkBase.getGroupPage(table,query,group,Sorts.descending("_id"), pageNum, pageSize);
+		}
+
         //获取集合的所有key
         Document obj = MongoSdkBase.getColl(dbName,tableName).find().first();
         Map<String, Object> m = new HashMap<String, Object>(16);
@@ -154,7 +162,7 @@ public class WebController {
    
     /**
      * 删除集合
-     * @param collectionName
+     * @param dbName
      * @param tableName
      * @param id  主键
      * @return
@@ -171,9 +179,8 @@ public class WebController {
 
     /**
      * 更新集合
-     * @param collectionName
      * @param tableName
-     * @param data  json字符串
+     * @param parame  json字符串
      * @return
      */
     @ResponseBody
@@ -190,9 +197,9 @@ public class WebController {
     
     /**
      * 添加集合
-     * @param collectionName
+     * @param dbName
      * @param tableName
-     * @param data  json字符串
+     * @param parame  json字符串
      * @return
      */
     @ResponseBody
@@ -209,9 +216,9 @@ public class WebController {
  
     /**
      * 根据ID查询集合
-     * @param collectionName
+     * @param dbName
      * @param tableName
-     * @param data  json字符串
+     * @param id
      * @return
      */
     @ResponseBody
@@ -260,6 +267,7 @@ public class WebController {
 			os.flush();
 			
 		} catch (Exception e) {
+			logger.error("导出异常：tableName:{},{}",tableName,e);
 			e.printStackTrace();
 		}finally{
 			if(os!=null){
@@ -273,4 +281,17 @@ public class WebController {
 		
 	}
 
+
+	public static void main(String[] args) {
+		/* Group操作  ,同时两个字段分组*/
+		DBObject groupFileds=new BasicDBObject();
+		groupFileds.put("openid", "$openid");
+		groupFileds.put("worker", "$worker");
+		DBObject fileds = new BasicDBObject("_id", groupFileds);
+		fileds.put("count", new BasicDBObject("$sum",1));  //统计每个分组数据重复数量
+		fileds.put("time", new BasicDBObject("$first","$time"));  //限制显示指定字段
+		fileds.put("nickName", new BasicDBObject("$first","$nickName"));
+		DBObject group = new BasicDBObject("$group", fileds);
+		System.out.println(group.toString());
+	}
 }
