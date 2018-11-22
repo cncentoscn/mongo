@@ -31,13 +31,13 @@
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/153436_4417ccb3_1478371.png "屏幕截图.png")
 
 ### 显示所有的数据源
-![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/153510_5e5a9d49_1478371.png "屏幕截图.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1122/153203_c35f73df_1478371.png "屏幕截图.png")
 
 ### 显示指定数据源下的表
 ![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/153553_91a7ba66_1478371.png "屏幕截图.png")
 
 ### 查询指定表的数据
-![输入图片说明](https://images.gitee.com/uploads/images/2018/1121/153736_3c90aafc_1478371.png "屏幕截图.png")
+![输入图片说明](https://images.gitee.com/uploads/images/2018/1122/153243_d170a1ee_1478371.png "屏幕截图.png")
 
 
 ### 条件查询方法(组装成json数据请求后台)
